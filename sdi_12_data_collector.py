@@ -257,6 +257,8 @@ for j in range(paras['total_data_count']):
         now = datetime.datetime.now()
     output_str = "%04d-%02d-%02d %02d:%02d:%02d%s" % (now.year, now.month, now.day, now.hour, now.minute, now.second,' GMT' if paras['time_zone_choice'] == 0 else '')  # formatting date and time
     # Include system hostname in data.
+    # TODO: It may be more valuable to list out the sensor information here to label the data.
+    #       Once we have multiple sensors hooked up to one sdi-12 adapter, things will get confusing without the sensor name.
     output_str = output_str + ',' + system_hostname
     for (cmd_ptr, an_address) in enumerate(paras['sdi_12_address']):
         values = []  # clear before each sensor
