@@ -131,7 +131,7 @@ def print_credit(pa):
     print(
         'Designed for Dr. Liu\'s family of SDI-12 USB adapters (standard,analog,GPS)\n\tDr. John Liu Saint Cloud MN USA',
         rev_date, '\n\t\tFree software GNU GPL V3.0')
-    print('\nAdapted for DISCOVER by NAU IoT (Jacob Hagan)')
+    print('\n\tAdapted for DISCOVER by NAU IoT (Jacob Hagan)')
     print('\nCompatible with PCs running Win 7/10, GNU/Linux, Mac OSX, Raspberry PI, Beagle Bone Black')
     print('\nThis program requires Python 3.4, Pyserial 3.0, and internet connector (data upload)')
     print('\nUsing config file:%s' %(config_file_name))
@@ -255,7 +255,9 @@ for j in range(paras['total_data_count']):
         now = datetime.datetime.utcnow()
     elif paras['time_zone_choice'] == 1:
         now = datetime.datetime.now()
-    output_str = "%04d/%02d/%02d %02d:%02d:%02d%s" % (now.year, now.month, now.day, now.hour, now.minute, now.second,' GMT' if paras['time_zone_choice'] == 0 else '')  # formatting date and time
+    output_str = "%04d-%02d-%02d %02d:%02d:%02d%s" % (now.year, now.month, now.day, now.hour, now.minute, now.second,' GMT' if paras['time_zone_choice'] == 0 else '')  # formatting date and time
+    # Include system hostname in data.
+    output_str = output_str + ',' + system_hostname
     for (cmd_ptr, an_address) in enumerate(paras['sdi_12_address']):
         values = []  # clear before each sensor
         sdi_12_line_buffer = b''  # This stores all data from the same sensor address, including from M!->D0! D1!, M1!->D0!, D1! etc.
