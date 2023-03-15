@@ -285,10 +285,16 @@ for j in range(paras['total_data_count']):
                 total_returned_values = int(m.group(0))  # find out how many values are returned
                 # print(total_returned_values)
                 sdi_12_line = ser[ser_ptr].readline()  # read the service request line
-                if sdi_12_line != an_address.encode() + b'\r\n':
-                    print('Sensor %s didn\'t respond with correct service request.' % (an_address))
-                    no_data = True  # End the current iteration of sensors and commands on each sensor and wait for the next iteration.
-                    break;
+
+                ### NOTE: This check doesn't work with MPS-6 sensor.
+                ### When sending '1M!' MPS-6 returns any of the following service request lines: '/Lx', '.Lx', '^Lx'
+                ###   This seems unique per sensor; after changing out the MPS-6 with a new one, 
+                ###   I got different, still incorrect, service request lines.
+                # if sdi_12_line != an_address.encode() + b'\r\n':
+                #     print('Sensor %s didn\'t respond with correct service request.' % (an_address))
+                #     no_data = True  # End the current iteration of sensors and commands on each sensor and wait for the next iteration.
+                #     break;
+                
                 # Read as much data as you can with D0, D1, ... D9 until only the address and \r\n is returned
                 for d_command in range(10):
                     complete_command = an_address.encode() + b'D' + str(d_command).encode() + b'!'
