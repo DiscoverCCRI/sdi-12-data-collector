@@ -342,7 +342,8 @@ for j in range(paras['total_data_count']):
         i = i + 1
 
     
-
+    # formatOutput(output_str)
+    
     print(output_str)
     output_str = output_str + '\n'
     data_file.write(output_str)
