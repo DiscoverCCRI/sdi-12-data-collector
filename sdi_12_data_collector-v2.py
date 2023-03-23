@@ -10,6 +10,7 @@ import urllib.parse  # For encoding data to be url safe.
 import urllib.request  # send data to online server
 import platform # For detecting operating system flavor and computer architecture
 import socket # For collecting the system hostname to be added to the conf file.
+import utils
 # import os # For running command line commands
 """
 SDI-12 Sensor Data Logger Copyright Dr. John Liu
@@ -244,7 +245,7 @@ elif paras['time_zone_choice'] == 1:
     now = datetime.datetime.now()  # use local time, not recommended for multiple data loggers in different time zones
 
 data_file_name = "%s_%04d%02d%02d.csv" % (system_hostname, now.year, now.month, now.day)
-data_file = open(data_file_name, 'a')  # open config_file_name_yyyymmdd.csv for appending
+data_file = utils.setup_csv(data_file_name)  # open config_file_name_yyyymmdd.csv for appending
 print('Saving to %s' % data_file_name)
 ser_ptr = 0
 
@@ -342,7 +343,7 @@ for j in range(paras['total_data_count']):
         i = i + 1
 
     
-    # formatOutput(output_str)
+    output_str = utils.format_output(output_str)
     
     print(output_str)
     output_str = output_str + '\n'

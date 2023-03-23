@@ -1,13 +1,15 @@
 # Imports
+import os
 
 # Known SDI-12 device addresses
+# TODO: Maybe this should go in a config file!
 SDI_12_DEVICES = {
     'a' : 'TEROS-12',
     'b' : 'MPS-6',
     'z' : '100K-THERMISTOR'
 }
 
-HEADER = "DateTime,Hostname,SDISensor1,VWC(m^3),Temp(°C),EC(dS/m),SDISensor2,WaterPotential(kPa),Temp(°C),AnalogSensor,Voltage(V)\n"
+HEADER = "DateTime,Hostname,Sensor1,VWC(m^3),Temp(°C),EC(dS/m),Sensor2,WaterPotential(kPa),Temp(°C),Sensor3,Voltage(V)\n"
 
 def format_output(data_str):
     # Convert data string into list and trim off the last 7 irrelevant data points
@@ -24,24 +26,19 @@ def format_output(data_str):
     # Return newly formatted data as a string
     return ",".join(csv_data)
 
-def add_header(data_file):
-    # Check to see if the data file is empty
 
-        # If it's empty, write the header
-    pass
+def setup_csv(filepath):
+    file_exists = os.path.exists(filepath)
+
+    if(file_exists):
+        file = open(filepath, 'a')
+        
+    else:
+        # Open the new file and write header
+        file = open(filepath, 'w')
+        file.write(HEADER)
+        
+    return file
 
 def voltage_to_kelvin(volts):
     pass
-
-
-### Test Code ###
-def main():
-    sensor_reading = "2023-03-21 15:24:30,ccriiob11,a,1932.52,19.2,169.0,b,-10.1,19.1,z,2.734,2.31,2.017,1.89,1.0,0.0,0.0,0.0"
-    print(f"Initial sensor reading: {sensor_reading}")
-
-    formatted_data = format_output(sensor_reading)
-    print(f"Formatted data: {formatted_data}")
-    
-
-if __name__ == "__main__":
-    main()
