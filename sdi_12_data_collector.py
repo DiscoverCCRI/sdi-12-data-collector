@@ -227,7 +227,7 @@ if paras['time_zone_choice'] == 0:
 elif paras['time_zone_choice'] == 1:
     now = datetime.datetime.now()  # use local time, not recommended for multiple data loggers in different time zones
 
-data_file_name = "%s_%04d%02d%02d.csv" % (system_hostname, now.year, now.month, now.day)
+data_file_name = "%s-sdi-12-%04d%02d%02d.csv" % (system_hostname, now.year, now.month, now.day)
 data_file = utils.setup_csv(data_file_name)  # open config_file_name_yyyymmdd.csv for appending
 print('Saving to %s' % data_file_name)
 ser_ptr = 0
