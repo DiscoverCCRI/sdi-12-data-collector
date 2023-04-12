@@ -177,7 +177,7 @@ def interactive_session(pa):
     print('Time stamps are generated with:\n0) GMT/UTC\n1) Local\n')
     pa['time_zone_choice'] = int(input('Select time zone.'))
     f = open(config_file_name, 'w')  # Save settings
-    json.dump(pa, f)
+    json.dump(pa, f, indent=4, separators=(',',': '))
     f.close()
     if input('Execute the script? (Y/N)')=='N':
         print('\r\nConfiguration saved to:%s' %(config_file_name))
