@@ -177,7 +177,7 @@ def interactive_session(pa):
     print('Time stamps are generated with:\n0) GMT/UTC\n1) Local\n')
     pa['time_zone_choice'] = int(input('Select time zone.'))
     f = open(config_file_name, 'w')  # Save settings
-    json.dump(paras, f)
+    json.dump(pa, f)
     f.close()
     if input('Execute the script? (Y/N)')=='N':
         print('\r\nConfiguration saved to:%s' %(config_file_name))
@@ -226,7 +226,7 @@ if paras['time_zone_choice'] == 0:
 elif paras['time_zone_choice'] == 1:
     now = datetime.datetime.now()  # use local time, not recommended for multiple data loggers in different time zones
 
-data_file_name = "%s-sdi-12-%04d%02d%02d.csv" % (system_hostname, now.year, now.month, now.day)
+data_file_name = "%s-sdi-12-data-%04d%02d%02d.csv" % (system_hostname, now.year, now.month, now.day)
 data_file = utils.setup_csv(data_file_name)  # open config_file_name_yyyymmdd.csv for appending
 print('Saving to %s' % data_file_name)
 ser_ptr = 0
@@ -268,9 +268,9 @@ for j in range(paras['total_data_count']):
                 sdi_12_line = ser[ser_ptr].readline()  # read the service request line
 
                 ### NOTE: This check doesn't work with MPS-6 sensor.
-                ### When sending '1M!' MPS-6 returns any of the following service request lines: '/Lx', '.Lx', '^Lx'
+                ### When sending '0M!' MPS-6 returns any of the following service request lines: '/Lx', '.Lx', '^Lx'
                 ###   This seems unique per sensor; after changing out the MPS-6 with a new one, 
-                ###   I got different, still incorrect, service request lines.
+                ###   I got different, but still incorrect, service request lines.
                 # if sdi_12_line != an_address.encode() + b'\r\n':
                 #     print('Sensor %s didn\'t respond with correct service request.' % (an_address))
                 #     no_data = True  # End the current iteration of sensors and commands on each sensor and wait for the next iteration.
