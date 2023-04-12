@@ -94,7 +94,6 @@ signal.signal(signal.SIGINT, SIGINT_handler)
 ser = []  # This list stores opened serial port
 fnf = False  # File not found error
 
-max_upload_values = 6  # Maximal values to upload as a single data point
 adapter_sdi_12_address = 'z'
 # This is the flag to break out of the inner loops and continue the next data point loop in case no data is received from a sensor such as the GPS.
 no_data = False
@@ -233,16 +232,14 @@ print('Saving to %s' % data_file_name)
 ser_ptr = 0
 
 for j in range(paras['total_data_count']):
-    i = 0  # This counts to max_upload_values to limit data sent to the server.
-    value_str = ''  # This stores &value0=xxx&value1=xxx&value2=xxx&value3=xxx&value4=xxx&value5=xxx and is only reset after all sensors are read.
+    
     if paras['time_zone_choice'] == 0:
         now = datetime.datetime.utcnow()
     elif paras['time_zone_choice'] == 1:
         now = datetime.datetime.now()
+
     output_str = "%04d-%02d-%02d %02d:%02d:%02d%s" % (now.year, now.month, now.day, now.hour, now.minute, now.second,' GMT' if paras['time_zone_choice'] == 0 else '')  # formatting date and time
     # Include system hostname in data.
-    # TODO: It may be more valuable to list out the sensor information here to label the data.
-    #       Once we have multiple sensors hooked up to one sdi-12 adapter, things will get confusing without the sensor name.
     output_str = output_str + ',' + system_hostname
     for (cmd_ptr, an_address) in enumerate(paras['sdi_12_address']):
         values = []  # clear before each sensor
@@ -309,23 +306,16 @@ for j in range(paras['total_data_count']):
             if (no_data == True):
                 break;
 
-        # TODO: Check this data value out to see if it changes once multiple sensors are attached.
         output_str = output_str + ',' + an_address
-
         for value_i in values:
             output_str = output_str + ",%s" % (value_i)  # Output returned values
-            if (i < max_upload_values):
-                value_str = value_str + "&field%d=%s" % (i + 1, value_i)  # format values for posting. Field starts with field1, not field0.
-                i = i + 1
+
     if (no_data == True):
         no_data = False
         time.sleep(paras['delay_between_pts'])
         continue;
-    while (i < max_upload_values):  # Pad with zeros in case we don't have max_upload_values fields. This is only necessary for certain servers.
-        value_str = value_str + "&field%d=0" % (i + 1)  # format values for posting. Field starts with field1, not field0.
-        i = i + 1
 
-    
+    # Format output string
     output_str = utils.format_output(output_str)
     
     print(output_str)
