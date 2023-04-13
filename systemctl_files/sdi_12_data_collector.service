@@ -1,0 +1,14 @@
+[Unit]
+Description=SDI-12 Data Collector
+
+[Service]
+Type=simple
+# WorkingDirectory=/SOME/PATH/TO/WORKINGDIR
+ExecStart=/SOME/PATH/TO/EXEC.sh
+Restart=on-failure
+RestartSec=10
+# User=do-user
+
+[Install]
+WantedBy=multi-user.target
+# WantedBy=default.target
