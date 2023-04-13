@@ -33,7 +33,8 @@ default_parameters = dict([
         'b' : 'MPS-6',
         'z' : '100K-THERMISTOR' 
         }),
-    ('header', 'DateTime,Hostname,Sensor1,VWC(m^3),Temp(°C),EC(dS/m),Sensor2,WaterPotential(kPa),Temp(°C),Sensor3,Voltage(V),Temp(K)')
+    ('header', 'DateTime,Hostname,Sensor1,VWC(m^3),Temp(°C),EC(dS/m),Sensor2,WaterPotential(kPa),Temp(°C),Sensor3,Voltage(V),Temp(K)'),
+    ('data_output_path', './')
 ])
 
 cmd_args_sep=':'
@@ -166,9 +167,9 @@ def sensor_info(pa):
 # Main execution starts here
 process_cmd_args() # Process command line arguments that may override default values such as config file's name
 (paras, fnf) = load_parameters()
-print_credit(paras)
 
 if (fnf):  # No configuration file. Start interactive session. Serial port is open in the interactive session.
+    print_credit(paras)
     interactive_session(paras)
 else:  # Open serial port
     print('\nUsing saved configuration...\n')
@@ -196,7 +197,7 @@ if paras['time_zone_choice'] == 0:
 elif paras['time_zone_choice'] == 1:
     now = datetime.datetime.now()  # use local time, not recommended for multiple data loggers in different time zones
 
-data_file_name = "%s-sdi-12-%04d%02d%02d.csv" % (system_hostname, now.year, now.month, now.day)
+data_file_name = "%s%s-sdi-12-%04d%02d%02d.csv" % (paras['data_output_path'], system_hostname, now.year, now.month, now.day)
 data_file = utils.setup_csv(data_file_name, paras['header'])  # open config_file_name_yyyymmdd.csv for appending
 print('Saving to %s' % data_file_name)
 ser_ptr = 0
