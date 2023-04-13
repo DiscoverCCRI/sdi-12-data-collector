@@ -6,50 +6,16 @@ import serial  # For serial communication
 import signal  # For trapping ctrl-c or SIGINT
 import sys  # For reading command-line arguments and exiting program with exit code
 import time  # For delaying in seconds
-import urllib.parse  # For encoding data to be url safe.
-import urllib.request  # send data to online server
 import platform # For detecting operating system flavor and computer architecture
 import socket # For collecting the system hostname to be added to the conf file.
-import utils
-# import os # For running command line commands
+import utils # For data scrubbing
+
 """
 SDI-12 Sensor Data Logger Copyright Dr. John Liu
-*019-02-07 Backported feature from 1.6.1: list serial port handles onboard serial port properly (no serial # for onboard serial ports).
-2018-07-09 Implemented command-line arguments parser.
-    Implemented argument cfg:config_file_name. It overrides the default config file name so the script can be executed with different configurations.
-    Added opening port by ID feature in parameters and saving port ID to config file in interactive session.
-2018-07-03 Improved exception handling for the SDI-12 protocol. No response from the sensor will not trigger exception.
-    Rather, the loop waits for the next iteration and try again. Time to read line 274
-2018-04-24 Added exception handling for opening a non-existing serial port (possibly the config file has wrong port name).
-    Added exception handling for http.client.BadStatusLine from urllib calls.
-2018-04-21 Tested recently added features such as D0, D1, and M, M1.
-2018-04-19 Updated the script to issue multiple commands such as M and M1.
-    Added features to collect all data using D0, D1, etc. until it collects all measurements
-    No longer asks for analog sensors. Just type in address z with the other sensors and issue
-    commands 0 or 1 to collect single-ended or differential analog channels from SDI-12 + Analog adapter.
-    The script saves a configuration file Liudrlogger.conf. You can modify it with a text editor.
-    It's very easy to understand. With the config file, the logger starts in auto-logging mode.
-    If you delete the file, it starts interactive session to gather the parameters from the user.
-2018-04-07 Replaced capitalize() with upper. Added urllib.error.URLError to exception handling.
-    Commented out os and platform imports and unit_id.
-    Decoded byte strings before converting into float to stay compatible with MicroPython.
-2018-03-29 Added exception handling for urllib.request.urlopen for server internal error
-2018-03-28 Replaced cURL with urllib.request for sending data to thingspeak.com server
-2017-11-06 Updated telemetry code to upload to thingspeak.com from data.sparkfun.com.
-2017-06-23 Added exception handling in case the SDI-12 + GPS USB adapter doesn't return any data (no GPS lock).
-    Added serial port and file closing in ctrl + C handler.
-2017-02-02 Added multiple-sensor support. Just type in multiple sensor addresses when asked for addresses.
-    Changed sdi_12_address into regular string from byte string.
-    I found out that byte strings when iterated over becomes integers.
-    It's easy to cast each single character string into byte string with .encode() when needed as address.
-    Removed specific analog input code and added the adapter address to the address string instead.
-2016-11-12 Added support for analog inputs
-2016-07-01 Added .strip() to remove \r from input files typed in windows
-    Added Ctrl-C handler
-    Added sort of serial port placing FTDI at item 0 if it exists
+Adapted for DISCOVER by NAU IoT (Jacob Hagan)
 """
-rev_date = '2018-07-09'
-version = '1.6.0'
+rev_date = '2023-04-13'
+version = '1.7.0'
 
 system_hostname = socket.gethostname()
 config_file_name = '%s.conf' %(system_hostname)
@@ -119,16 +85,15 @@ def load_parameters():
 
 def print_credit(pa):
     print('+-' * 40)
-    print('SDI-12 Sensor and Analog Sensor Python Data Logger with Telemetry V', version)
+    print('SDI-12 Sensor and Analog Sensor Python Data Logger V', version)
     print(
         'Designed for Dr. Liu\'s family of SDI-12 USB adapters (standard,analog,GPS)\n\tDr. John Liu Saint Cloud MN USA',
         rev_date, '\n\t\tFree software GNU GPL V3.0')
     print('\n\tAdapted for DISCOVER by NAU IoT (Jacob Hagan)')
     print('\nCompatible with PCs running Win 7/10, GNU/Linux, Mac OSX, Raspberry PI, Beagle Bone Black')
-    print('\nThis program requires Python 3.4, Pyserial 3.0, and internet connector (data upload)')
+    print('\nThis program requires Python 3.4 or newer, Pyserial 3.0')
     print('\nUsing config file:%s' %(config_file_name))
-    print('\nData is logged to HOSTNAME_YYYYMMDD.csv in the Python code\'s folder')
-    # print('\nVisit https://thingspeak.com/channels/%s to inspect or retrieve data' % (pa['channelID']))
+    print('\nData is logged to HOSTNAME-sdi-12-YYYYMMDD.csv in the Python code\'s folder')
     print('\nFor assistance with customization, telemetry etc., contact Dr. Liu.')
     print('\nhttps://liudr.wordpress.com/gadget/sdi-12-usb-adapter/')
     print('+-' * 40)
