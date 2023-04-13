@@ -88,8 +88,8 @@ def print_credit(pa):
     print('SDI-12 Sensor and Analog Sensor Python Data Logger V', version)
     print(
         'Designed for Dr. Liu\'s family of SDI-12 USB adapters (standard,analog,GPS)\n\tDr. John Liu Saint Cloud MN USA',
-        rev_date, '\n\t\tFree software GNU GPL V3.0')
-    print('\n\tAdapted for DISCOVER by NAU IoT (Jacob Hagan)')
+        '\n\t\tFree software GNU GPL V3.0')
+    print('\n\tAdapted for DISCOVER by NAU IoT (Jacob Hagan)', rev_date)
     print('\nCompatible with PCs running Win 7/10, GNU/Linux, Mac OSX, Raspberry PI, Beagle Bone Black')
     print('\nThis program requires Python 3.4 or newer, Pyserial 3.0')
     print('\nUsing config file:%s' %(config_file_name))
