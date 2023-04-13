@@ -61,7 +61,11 @@ default_parameters = dict([
     ('sdi_12_command', ['0']),
     ('time_zone_choice', 0),
     ('ser', []),
-    ('connected_devices', ['TEROS-12','MPS-6','100K-THERMISTOR']),
+    ('connected_devices', {
+        'a' : 'TEROS-12',
+        'b' : 'MPS-6',
+        'z' : '100K-THERMISTOR' 
+        }),
     ('header', 'DateTime,Hostname,Sensor1,VWC(m^3),Temp(°C),EC(dS/m),Sensor2,WaterPotential(kPa),Temp(°C),Sensor3,Voltage(V),Temp(K)')
 ])
 
@@ -227,7 +231,7 @@ elif paras['time_zone_choice'] == 1:
     now = datetime.datetime.now()  # use local time, not recommended for multiple data loggers in different time zones
 
 data_file_name = "%s-sdi-12-%04d%02d%02d.csv" % (system_hostname, now.year, now.month, now.day)
-data_file = utils.setup_csv(data_file_name)  # open config_file_name_yyyymmdd.csv for appending
+data_file = utils.setup_csv(data_file_name, paras['header'])  # open config_file_name_yyyymmdd.csv for appending
 print('Saving to %s' % data_file_name)
 ser_ptr = 0
 
@@ -316,7 +320,7 @@ for j in range(paras['total_data_count']):
         continue;
 
     # Format output string
-    output_str = utils.format_output(output_str)
+    output_str = utils.format_output(output_str, paras['sdi_12_address'], paras['connected_devices'])
     
     print(output_str)
     output_str = output_str + '\n'
