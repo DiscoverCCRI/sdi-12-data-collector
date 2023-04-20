@@ -6,49 +6,17 @@ import serial  # For serial communication
 import signal  # For trapping ctrl-c or SIGINT
 import sys  # For reading command-line arguments and exiting program with exit code
 import time  # For delaying in seconds
-import urllib.parse  # For encoding data to be url safe.
-import urllib.request  # send data to online server
 import platform # For detecting operating system flavor and computer architecture
 import socket # For collecting the system hostname to be added to the conf file.
-# import os # For running command line commands
+import utils # For data scrubbing
+
 """
 SDI-12 Sensor Data Logger Copyright Dr. John Liu
-*019-02-07 Backported feature from 1.6.1: list serial port handles onboard serial port properly (no serial # for onboard serial ports).
-2018-07-09 Implemented command-line arguments parser.
-    Implemented argument cfg:config_file_name. It overrides the default config file name so the script can be executed with different configurations.
-    Added opening port by ID feature in parameters and saving port ID to config file in interactive session.
-2018-07-03 Improved exception handling for the SDI-12 protocol. No response from the sensor will not trigger exception.
-    Rather, the loop waits for the next iteration and try again. Time to read line 274
-2018-04-24 Added exception handling for opening a non-existing serial port (possibly the config file has wrong port name).
-    Added exception handling for http.client.BadStatusLine from urllib calls.
-2018-04-21 Tested recently added features such as D0, D1, and M, M1.
-2018-04-19 Updated the script to issue multiple commands such as M and M1.
-    Added features to collect all data using D0, D1, etc. until it collects all measurements
-    No longer asks for analog sensors. Just type in address z with the other sensors and issue
-    commands 0 or 1 to collect single-ended or differential analog channels from SDI-12 + Analog adapter.
-    The script saves a configuration file Liudrlogger.conf. You can modify it with a text editor.
-    It's very easy to understand. With the config file, the logger starts in auto-logging mode.
-    If you delete the file, it starts interactive session to gather the parameters from the user.
-2018-04-07 Replaced capitalize() with upper. Added urllib.error.URLError to exception handling.
-    Commented out os and platform imports and unit_id.
-    Decoded byte strings before converting into float to stay compatible with MicroPython.
-2018-03-29 Added exception handling for urllib.request.urlopen for server internal error
-2018-03-28 Replaced cURL with urllib.request for sending data to thingspeak.com server
-2017-11-06 Updated telemetry code to upload to thingspeak.com from data.sparkfun.com.
-2017-06-23 Added exception handling in case the SDI-12 + GPS USB adapter doesn't return any data (no GPS lock).
-    Added serial port and file closing in ctrl + C handler.
-2017-02-02 Added multiple-sensor support. Just type in multiple sensor addresses when asked for addresses.
-    Changed sdi_12_address into regular string from byte string.
-    I found out that byte strings when iterated over becomes integers.
-    It's easy to cast each single character string into byte string with .encode() when needed as address.
-    Removed specific analog input code and added the adapter address to the address string instead.
-2016-11-12 Added support for analog inputs
-2016-07-01 Added .strip() to remove \r from input files typed in windows
-    Added Ctrl-C handler
-    Added sort of serial port placing FTDI at item 0 if it exists
+Adapted for DISCOVER by NAU IoT (Jacob Hagan)
 """
-rev_date = '2018-07-09'
-version = '1.6.0'
+
+rev_date = '2023-04-13'
+version = '1.7.0'
 
 system_hostname = socket.gethostname()
 config_file_name = '%s.conf' %(system_hostname)
@@ -58,9 +26,15 @@ default_parameters = dict([
     ('delay_between_pts', 60),
     ('sdi_12_address', 'z'),
     ('sdi_12_command', ['0']),
-    ('analog_inputs', 'N'),
     ('time_zone_choice', 0),
-    ('ser', [])
+    ('ser', []),
+    ('connected_devices', {
+        'a' : 'TEROS-12',
+        'b' : 'MPS-6',
+        'z' : '100K-THERMISTOR' 
+        }),
+    ('header', 'DateTime,Hostname,Sensor1,VWC(m^3),Temp(°C),EC(dS/m),Sensor2,WaterPotential(kPa),Temp(°C),Sensor3,Voltage(V),Temp(K)'),
+    ('data_output_path', './')
 ])
 
 cmd_args_sep=':'
@@ -92,20 +66,6 @@ signal.signal(signal.SIGINT, SIGINT_handler)
 ser = []  # This list stores opened serial port
 fnf = False  # File not found error
 
-# TODO: Try this out with the 5TM data.
-# This one for everyone to perform tests with
-# channelID = "359964"
-# api_key = "GTOEBKK8ZQHI1V1B"
-
-# This one for a specific test
-# channelID = '462421'
-# api_key = "RYZS3T8ILEMW967J"
-
-# Use computer name as unit_id. For a raspberry pi, change its name from raspberrypi to something else to avoid confusion
-# unit_id=platform.node()
-
-# http_request_url_format = 'https://api.thingspeak.com/update/?api_key=%s%s'
-max_upload_values = 6  # Maximal values to upload as a single data point
 adapter_sdi_12_address = 'z'
 # This is the flag to break out of the inner loops and continue the next data point loop in case no data is received from a sensor such as the GPS.
 no_data = False
@@ -127,16 +87,15 @@ def load_parameters():
 
 def print_credit(pa):
     print('+-' * 40)
-    print('SDI-12 Sensor and Analog Sensor Python Data Logger with Telemetry V', version)
+    print('SDI-12 Sensor and Analog Sensor Python Data Logger V', version)
     print(
-        'Designed for Dr. Liu\'s family of SDI-12 USB adapters (standard,analog,GPS)\n\tDr. John Liu Saint Cloud MN USA',
-        rev_date, '\n\t\tFree software GNU GPL V3.0')
-    print('\n\tAdapted for DISCOVER by NAU IoT (Jacob Hagan)')
+        'Designed for Dr. Liu\'s family of SDI-12 USB adapters (standard,analog,GPS)',
+        '\n\tDr. John Liu Saint Cloud MN USA | Free software GNU GPL V3.0')
+    print('\n\tAdapted for DISCOVER by NAU IoT (Jacob Hagan)', rev_date)
     print('\nCompatible with PCs running Win 7/10, GNU/Linux, Mac OSX, Raspberry PI, Beagle Bone Black')
-    print('\nThis program requires Python 3.4, Pyserial 3.0, and internet connector (data upload)')
+    print('\nThis program requires Python 3.4 or newer, Pyserial 3.0')
     print('\nUsing config file:%s' %(config_file_name))
-    print('\nData is logged to HOSTNAME_YYYYMMDD.csv in the Python code\'s folder')
-    # print('\nVisit https://thingspeak.com/channels/%s to inspect or retrieve data' % (pa['channelID']))
+    print('\nData is logged to HOSTNAME-sdi-12-YYYYMMDD.csv in the Python code\'s folder')
     print('\nFor assistance with customization, telemetry etc., contact Dr. Liu.')
     print('\nhttps://liudr.wordpress.com/gadget/sdi-12-usb-adapter/')
     print('+-' * 40)
@@ -186,22 +145,16 @@ def interactive_session(pa):
         print('\nFor SDI-12 sensor %c, which command(s) should be sent?' % (addr))
         pa['sdi_12_command'].append(input('Enter command:'))
 
-    # pa['analog_inputs']=input('Collect analog inputs (requires SDI12-USB + Analog adapter)? (Y/N)')
-    # pa['analog_inputs']=(pa['analog_inputs'].strip()).upper() # Remove any \r from an input file typed in windows and capitalize answer
     print('Time stamps are generated with:\n0) GMT/UTC\n1) Local\n')
     pa['time_zone_choice'] = int(input('Select time zone.'))
     f = open(config_file_name, 'w')  # Save settings
-    json.dump(paras, f)
+    json.dump(pa, f, indent=4, separators=(',',': '))
     f.close()
     if input('Execute the script? (Y/N)')=='N':
         print('\r\nConfiguration saved to:%s' %(config_file_name))
         print('\r\nTo execute the script with this config file, first change to the directory that contains the script.\r\nMake sure the config file is in the same directory.\r\n\r\nOn GNU/Linux/RPI, enter "python3 script_name cfg:%s"' %(config_file_name))
         print('On Windows, enter "python script_name cfg:%s"' %(config_file_name))
         exit(0);
-    
-
-# if len(sdi_12_address)==0:
-#    sdi_12_address=adapter_sdi_12_address # Use default address
 
 
 def sensor_info(pa):
@@ -210,12 +163,13 @@ def sensor_info(pa):
         sdi_12_line = ser[0].readline()
         print('Sensor address:', an_address, ' Sensor info:', sdi_12_line.decode('utf-8').strip())
 
+
 # Main execution starts here
 process_cmd_args() # Process command line arguments that may override default values such as config file's name
 (paras, fnf) = load_parameters()
-print_credit(paras)
 
 if (fnf):  # No configuration file. Start interactive session. Serial port is open in the interactive session.
+    print_credit(paras)
     interactive_session(paras)
 else:  # Open serial port
     print('\nUsing saved configuration...\n')
@@ -243,22 +197,20 @@ if paras['time_zone_choice'] == 0:
 elif paras['time_zone_choice'] == 1:
     now = datetime.datetime.now()  # use local time, not recommended for multiple data loggers in different time zones
 
-data_file_name = "%s_%04d%02d%02d.csv" % (system_hostname, now.year, now.month, now.day)
-data_file = open(data_file_name, 'a')  # open config_file_name_yyyymmdd.csv for appending
+data_file_name = "%s%s-sdi-12-%04d%02d%02d.csv" % (paras['data_output_path'], system_hostname, now.year, now.month, now.day)
+data_file = utils.setup_csv(data_file_name, paras['header'])  # open config_file_name_yyyymmdd.csv for appending
 print('Saving to %s' % data_file_name)
 ser_ptr = 0
 
 for j in range(paras['total_data_count']):
-    i = 0  # This counts to max_upload_values to limit data sent to the server.
-    value_str = ''  # This stores &value0=xxx&value1=xxx&value2=xxx&value3=xxx&value4=xxx&value5=xxx and is only reset after all sensors are read.
+    
     if paras['time_zone_choice'] == 0:
         now = datetime.datetime.utcnow()
     elif paras['time_zone_choice'] == 1:
         now = datetime.datetime.now()
+
     output_str = "%04d-%02d-%02d %02d:%02d:%02d%s" % (now.year, now.month, now.day, now.hour, now.minute, now.second,' GMT' if paras['time_zone_choice'] == 0 else '')  # formatting date and time
     # Include system hostname in data.
-    # TODO: It may be more valuable to list out the sensor information here to label the data.
-    #       Once we have multiple sensors hooked up to one sdi-12 adapter, things will get confusing without the sensor name.
     output_str = output_str + ',' + system_hostname
     for (cmd_ptr, an_address) in enumerate(paras['sdi_12_address']):
         values = []  # clear before each sensor
@@ -285,10 +237,16 @@ for j in range(paras['total_data_count']):
                 total_returned_values = int(m.group(0))  # find out how many values are returned
                 # print(total_returned_values)
                 sdi_12_line = ser[ser_ptr].readline()  # read the service request line
-                if sdi_12_line != an_address.encode() + b'\r\n':
-                    print('Sensor %s didn\'t respond with correct service request.' % (an_address))
-                    no_data = True  # End the current iteration of sensors and commands on each sensor and wait for the next iteration.
-                    break;
+
+                ### NOTE: This check doesn't work with MPS-6 sensor.
+                ### When sending '0M!' MPS-6 returns any of the following service request lines: '/Lx', '.Lx', '^Lx'
+                ###   This seems unique per sensor; after changing out the MPS-6 with a new one, 
+                ###   I got different, but still incorrect, service request lines.
+                # if sdi_12_line != an_address.encode() + b'\r\n':
+                #     print('Sensor %s didn\'t respond with correct service request.' % (an_address))
+                #     no_data = True  # End the current iteration of sensors and commands on each sensor and wait for the next iteration.
+                #     break;
+                
                 # Read as much data as you can with D0, D1, ... D9 until only the address and \r\n is returned
                 for d_command in range(10):
                     complete_command = an_address.encode() + b'D' + str(d_command).encode() + b'!'
@@ -320,38 +278,20 @@ for j in range(paras['total_data_count']):
                 break;
 
         output_str = output_str + ',' + an_address
-
         for value_i in values:
             output_str = output_str + ",%s" % (value_i)  # Output returned values
-            if (i < max_upload_values):
-                value_str = value_str + "&field%d=%s" % (i + 1, value_i)  # format values for posting. Field starts with field1, not field0.
-                i = i + 1
+
     if (no_data == True):
         no_data = False
         time.sleep(paras['delay_between_pts'])
         continue;
-    while (i < max_upload_values):  # Pad with zeros in case we don't have max_upload_values fields. This is only necessary for certain servers.
-        value_str = value_str + "&field%d=0" % (i + 1)  # format values for posting. Field starts with field1, not field0.
-        i = i + 1
 
+    # Format output string
+    output_str = utils.format_output(output_str, paras['sdi_12_address'], paras['connected_devices'])
+    
     print(output_str)
     output_str = output_str + '\n'
     data_file.write(output_str)
-
-    # http_request_url = http_request_url_format % (paras['api_key'], value_str)  # Format url command
-    # print(http_request_url)  # Debug information
-    # try:
-        # req = urllib.request.urlopen(http_request_url)
-        # pass # Enable logging to thingspeak with the previous line. Make sure you get your own thingspeak channel and replace the channel ID and API key.
-    # except: # Intermittent internet connection could cause more underlying modules to through exceptions. Just catch any exception and discard.
-        # print("Unexpected error:", sys.exc_info()[0])
-    #except (urllib.error.HTTPError, urllib.error.URLError, http.client.BadStatusLine) as err:
-        #print('Error uploading data.')
-        #print(err.__str__())  # Sometimes the server returns with 500 Internal error and this error is raised and needs to be caught otherwise it breaks the script.
-        # You can decide whether to send the request one or a few more times or just discard the error and move on.
-    # else:
-        # print('Sent data')
-    #print(req.status)  # Send data to server and print out response. 200 means OK.
 
     values = []  # clear values for the next iteration, 3.2.3 doesn't support clear as 3.4.3 and 3.5.1 does
     data_file.flush()  # make sure data is written to the disk so stopping the scrit with ctrl - C will not cause data loss
