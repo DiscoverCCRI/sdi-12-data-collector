@@ -11,5 +11,9 @@ for port in available_ports:
     sern=port.serial_number if (type(port.serial_number) is str) else 'NONE'
     sern=sern[:-1] if ((type(port.vid) is int) and (port.vid==VID_FTDI) and (platform.system()=='Windows')) else sern # Windows OS FTDI driver adds 'A' to the end of the serial number.
     print('%d)\t%s\t(USB VID=%04X)\t Serial#:=%s' % (i, port.device, vidn, sern))
+    if vidn == VID_FTDI:
+        print("Found SDI-12 USB Adapter")
+    else:
+        print("No match found")
     i=i+1
 total_ports = i  # now i= total ports
