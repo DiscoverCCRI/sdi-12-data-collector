@@ -1,4 +1,5 @@
 import serial.tools.list_ports  # For listing available serial ports
+import platform # For detecting operating system flavor and computer architecture
 
 VID_FTDI = 0x0403;
 
