@@ -1,6 +1,11 @@
 # Imports
 import os
 import math
+from datetime import datetime  # For finding system's real time
+import socket # For collecting the system hostname to be added to the conf file.
+import yaml # For loading config file
+import sys  # For reading command-line arguments and exiting program with exit code
+
 
 def format_output(data_str, addresses, connected_devices):
     # Convert data string into list and trim off the last 7 irrelevant data points
@@ -19,6 +24,26 @@ def format_output(data_str, addresses, connected_devices):
 
     # Return newly formatted data as a string
     return ",".join(csv_data)
+
+
+def generate_filename(file_path):
+    system_hostname = socket.gethostname()
+    date = datetime.now().strftime("%Y%m%d")
+
+    filename = f"{file_path}{system_hostname}-sdi-12-{date}.csv"
+    return filename
+
+
+def load_config():
+    try:
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
+
+        return config
+    
+    except FileNotFoundError:
+        print("[-] No config file found; please refer to the GitHub repo for a working example.")
+        sys.exit(1)
 
 
 def setup_csv(filepath, header):

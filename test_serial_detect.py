@@ -5,16 +5,7 @@ from datetime import datetime  # For finding system's real time
 import socket # For collecting the system hostname to be added to the conf file.
 import sys  # For reading command-line arguments and exiting program with exit code
 import re  # For regular expression support
-import yaml # For loading config file
 import utils # For data scrubbing and file output
-
-
-def generate_filename(file_path):
-    system_hostname = socket.gethostname()
-    date = datetime.now().strftime("%Y%m%d")
-
-    filename = f"{file_path}{system_hostname}-sdi-12-{date}.csv"
-    return filename
 
 
 def get_sdi_12_port_info():
@@ -40,18 +31,6 @@ def get_sensor_info(open_serial_port, sensor_addresses):
         open_serial_port.write(address.encode() + b'I!')
         sensor_info = open_serial_port.readline()
         print('Sensor address:', address, ' Sensor info:', sensor_info.decode('utf-8').strip())
-
-
-def load_config():
-    try:
-        with open('config.yaml', 'r') as file:
-            config = yaml.safe_load(file)
-
-        return config
-    
-    except FileNotFoundError:
-        print("[-] No config file found; please refer to the GitHub repo for a working example.")
-        sys.exit(1)
 
 
 def read_sdi_12_sensors(open_serial_port, sensor_addresses, sensor_commands):
@@ -159,7 +138,7 @@ def read_sdi_12_sensors(open_serial_port, sensor_addresses, sensor_commands):
 
 def main():
     # Load parameters from config file
-    config = load_config()
+    config = utils.load_config()
 
     # Connect to the SDI-12 USB Adapter
     sdi_12_device = get_sdi_12_port_info()
@@ -172,7 +151,7 @@ def main():
     get_sensor_info(sdi_12_adapter, config['sdi_12_address'])
 
     # Generate filename and open CSV file
-    data_filename = generate_filename(config['data_output_path'])
+    data_filename = utils.generate_filename(config['data_output_path'])
     data_file = utils.setup_csv(data_filename, config['header'])  # open config_file_name_yyyymmdd.csv for appending
 
     # Read and clean up sensor data
@@ -181,9 +160,11 @@ def main():
     
     print(f"The following data will be stored in {data_filename}: \n\t{formatted_data}")
 
+    # Write and flush to make sure data is written to the disk so force stopping the program will not cause data loss
     data_file.write(formatted_data)
     data_file.flush()
 
+    # Close open serial connection and file
     sdi_12_adapter.close()
     data_file.close()
 
