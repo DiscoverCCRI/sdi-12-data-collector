@@ -1,10 +1,10 @@
 # Imports
-import os
-import math
 from datetime import datetime  # For finding system's real time
+import math
+import os
 import socket # For collecting the system hostname to be added to the conf file.
-import yaml # For loading config file
 import sys  # For reading command-line arguments and exiting program with exit code
+import yaml # For loading config file
 
 
 def format_output(data_str, addresses, connected_devices):
@@ -59,6 +59,7 @@ def setup_csv(filepath, header):
         file.write(header + '\n')
         
     return file
+
 
 def voltage_to_kelvin(volts):
     resistance = 100000 * (volts / (5-volts))
