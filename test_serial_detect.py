@@ -11,7 +11,7 @@ import utils # For data scrubbing and file output
 
 def generate_filename(file_path):
     system_hostname = socket.gethostname()
-    date = datetime.now().strftime("%Y-%m-%d")
+    date = datetime.now().strftime("%Y%m%d")
 
     filename = f"{file_path}{system_hostname}-sdi-12-{date}.csv"
     return filename
