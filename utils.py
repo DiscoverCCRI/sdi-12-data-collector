@@ -1,6 +1,11 @@
 # Imports
-import os
+from datetime import datetime  # For finding system's real time
 import math
+import os
+import socket # For collecting the system hostname to be added to the conf file.
+import sys  # For reading command-line arguments and exiting program with exit code
+import yaml # For loading config file
+
 
 def format_output(data_str, addresses, connected_devices):
     # Convert data string into list and trim off the last 7 irrelevant data points
@@ -21,6 +26,26 @@ def format_output(data_str, addresses, connected_devices):
     return ",".join(csv_data)
 
 
+def generate_filename(file_path):
+    system_hostname = socket.gethostname()
+    date = datetime.now().strftime("%Y%m%d")
+
+    filename = f"{file_path}{system_hostname}-sdi-12-{date}.csv"
+    return filename
+
+
+def load_config():
+    try:
+        with open('config.yaml', 'r') as file:
+            config = yaml.safe_load(file)
+
+        return config
+    
+    except FileNotFoundError:
+        print("[-] No config file found; please refer to the GitHub repo for a working example.")
+        sys.exit(1)
+
+
 def setup_csv(filepath, header):
     file_exists = os.path.exists(filepath)
 
@@ -34,6 +59,7 @@ def setup_csv(filepath, header):
         file.write(header + '\n')
         
     return file
+
 
 def voltage_to_kelvin(volts):
     resistance = 100000 * (volts / (5-volts))

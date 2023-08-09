@@ -1,0 +1,12 @@
+sdi_12_address: "abz"
+sdi_12_command:
+  - '0'
+  - '0'
+  - '8'
+connected_devices:
+  { 'a': 'TEROS-12',
+    'b': 'MPS-6',
+    'z': '100K-THERMISTOR'
+  }
+header: "DateTime,Hostname,Sensor1,VWC(m^3),Temp(\u00b0C),EC(dS/m),Sensor2,WaterPotential(kPa),Temp(\u00b0C),Sensor3,Voltage(V),Temp(K)"
+data_output_path: "./"
