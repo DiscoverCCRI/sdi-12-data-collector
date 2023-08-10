@@ -10,3 +10,4 @@ connected_devices:
   }
 header: "DateTime,Hostname,Sensor1,VWC(m^3),Temp(\u00b0C),EC(dS/m),Sensor2,WaterPotential(kPa),Temp(\u00b0C),Sensor3,Voltage(V),Temp(K)"
 data_output_path: "./"
+
