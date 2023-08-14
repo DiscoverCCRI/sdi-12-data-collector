@@ -44,5 +44,13 @@ Analog Wiring Reference With Thermistor:
 
 ## Using the SDI-12 Adapter
 
-- Pull this repository to your device ```git clone ```
+- Pull this repository to your device:
+  ```
+  git clone https://github.com/MichaelChestnut/sdi-12-data-collector.git
+  ```
+- Install pyserial:
+  ```
+  pip install pyserial
+  ```
+- 
 
