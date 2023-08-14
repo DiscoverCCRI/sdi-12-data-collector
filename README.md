@@ -129,7 +129,7 @@ crontab -e
 - Paste the following lines into the cron table and modify the lines to adjust how often the cron job executes: 
 ```
 # execute csv2sql.py every 5 minutes
-*/10 * * * * /usr/bin/python3 /SOME/PATH/TO/ >>/SOME/PATH/TO/ 2>>/SOME/PATH/TO/
+*/10 * * * * /usr/bin/python3 /SOME/PATH/TO/sdi_12_data_collector.sh
 ```
 
 - Save the cron table and verify it was loaded by inspecting running cron jobs: 
