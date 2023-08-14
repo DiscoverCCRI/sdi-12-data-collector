@@ -61,10 +61,10 @@ git clone
 ```
 cd DIRECTORY 
 ```
-- Modify FILENAME to match your current implementation: 
+- Modify config.yaml to match your implementation: 
    - Refer to comments for necessary changes
 ```
-nano FILENAME
+nano config.yaml
 ```
 - Build docker image in current directory:
    - This will take a while
