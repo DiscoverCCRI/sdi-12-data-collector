@@ -40,17 +40,67 @@ Analog Wiring Reference With Thermistor:
 
 <img width="693" alt="Screen Shot 2023-08-08 at 7 18 39 PM" src="https://github.com/MichaelChestnut/sdi-12-data-collector/assets/72172361/03a84599-383c-43a8-9096-49cc54d81fee">
 
+## Using the SDI-12 Adapter With Docker:
 
+- Install docker: 
+```
+sudo apt install docker.io 
+```
 
-## Using the SDI-12 Adapter
+- Check if docker is functioning: 
+```
+sudo docker run hello-world
+```
+
+- Clone repository to get Dockerfile and configuration files: 
+```
+git clone 
+```
+
+- Change into directory: 
+```
+cd DIRECTORY 
+```
+- Modify FILENAME to match your current implementation: 
+   - Refer to comments for necessary changes
+```
+nano FILENAME
+```
+- Build docker image in current directory:
+   - This will take a while
+```
+docker build -t BLANK .
+```
+- Create a directory in a convenient location to store the docker volume. For example: 
+```
+mkdir -p Data/SDI12Data
+```
+- Create a volume to store data inside the directory created in the previous step: 
+```
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/SOME/LOCAL/DIRECTORY \
+    --opt o=bind \
+    YOUR_VOLUME_NAME
+```
+- Execute docker container: 
+```
+docker run --privileged -v YOUR_VOLUME_NAME:/Data -t -i -d --restart unless-stopped remotepicontrol
+```
+
+- Verify container is running: 
+```
+docker ps
+```
+- Done!
+
+## Using the SDI-12 Adapter With Python:
 
 - Pull this repository to your device:
   ```
-  git clone https://github.com/MichaelChestnut/sdi-12-data-collector.git
+  git clone 
   ```
 - Install pyserial:
   ```
   pip install pyserial
   ```
-- 
-
