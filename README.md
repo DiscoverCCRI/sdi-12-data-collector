@@ -9,7 +9,7 @@ Official documentation can be found [here](https://liudresllc.com/gadget/sdi-12-
 
 ## Initializing SDI-12 Sensor Addresses Using The USB Adapter:
 
-There are a few important details to keep in mind when initializing sensors using the SDI-12 USB adapter. 
+There are a few important details to keep in mind when initializing sensors using the SDI-12 USB adapter: 
 
  1. Only one ***digital*** sensor may be wired into the USB adapter at a time. If more than one **digital** sensor is wired into the adapter, the sensor intitialization **will not** work.
       - For clarification: You are able to initialize a digital sensor address even if analog sensors are wired into the adapter.
@@ -94,13 +94,47 @@ docker ps
 ```
 - Done!
 
-## Using the SDI-12 Adapter With Python:
+## Using the SDI-12 Adapter With Cron:
 
 - Pull this repository to your device:
   ```
   git clone 
   ```
+  
 - Install pyserial:
   ```
   pip install pyserial
   ```
+
+- Change into directory:
+```
+cd DIRECTORY 
+```
+
+- Modify config.yaml to match your implementation: 
+   - Refer to comments for necessary changes
+```
+nano config.yaml
+```
+
+
+
+
+## Using Cron
+
+- Open cron table file:
+```
+crontab -e
+```
+- Paste the following lines into the cron table and modify the lines to adjust how often the cron job executes: 
+```
+# execute csv2sql.py every 5 minutes
+*/10 * * * * /usr/bin/python3 /SOME/PATH/TO/ >>/SOME/PATH/TO/ 2>>/SOME/PATH/TO/
+```
+
+- Save the cron table and verify it was loaded by inspecting running cron jobs: 
+```
+crontab -l
+```
+
+
