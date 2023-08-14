@@ -30,4 +30,5 @@ RUN chmod +x /sdi_12_data_collector.sh
 
 
 # Run the command on container startup, this assumes that a shared volume is used to define /data.
-CMD cron 
+CMD cron \
+    && ./sdi_12_data_collector.sh
