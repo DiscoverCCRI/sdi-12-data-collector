@@ -25,6 +25,6 @@
 # NOTE: This cron task assumes that the sdi-12 data collector conf file contains the following values:
 # NOTE: "total_data_count": 1, "delay_between_pts": 0
 # NOTE: Currently uses sudo to access /dev/ttyUSB0
-*/10 * * * * sudo /SOME/PATH/TO/sdi_12_data_collector.sh
+*/10 * * * * sudo /sdi_12_data_collector.sh
 
 # An empty line is required at the end of this file for a valid cron file.
