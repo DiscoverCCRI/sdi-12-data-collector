@@ -69,7 +69,7 @@ nano config.yaml
 - Build docker image in current directory:
    - This will take a while
 ```
-docker build -t BLANK .
+docker build -t NAME .
 ```
 - Create a directory in a convenient location to store the docker volume. For example: 
 ```
@@ -85,7 +85,7 @@ docker volume create --driver local \
 ```
 - Execute docker container: 
 ```
-docker run --privileged -v YOUR_VOLUME_NAME:/Data -t -i -d --restart unless-stopped remotepicontrol
+docker run --privileged -v YOUR_VOLUME_NAME:/Data -t -i -d --restart unless-stopped NAME
 ```
 
 - Verify container is running: 
