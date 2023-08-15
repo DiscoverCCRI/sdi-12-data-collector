@@ -54,12 +54,12 @@ sudo docker run hello-world
 
 - Clone repository to get Dockerfile and configuration files: 
 ```
-git clone 
+git clone REPONAME 
 ```
 
 - Change into directory: 
 ```
-cd DIRECTORY 
+cd sdi-12-data-collector
 ```
 - Modify config.yaml to match your implementation: 
    - Refer to comments for necessary changes
@@ -69,7 +69,7 @@ nano config.yaml
 - Build docker image in current directory:
    - This will take a while
 ```
-docker build -t NAME .
+docker build -t sdi12 .
 ```
 - Create a directory in a convenient location to store the docker volume. For example: 
 ```
@@ -85,7 +85,7 @@ docker volume create --driver local \
 ```
 - Execute docker container: 
 ```
-docker run --privileged -v YOUR_VOLUME_NAME:/Data -t -i -d --restart unless-stopped NAME
+docker run --privileged -v YOUR_VOLUME_NAME:/Data -t -i -d --restart unless-stopped sdi12
 ```
 
 - Verify container is running: 
