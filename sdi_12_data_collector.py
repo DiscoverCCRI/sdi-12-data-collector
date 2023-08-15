@@ -33,12 +33,9 @@ def get_sensor_info(open_serial_port, sensor_addresses):
         print('Sensor address:', address, ' Sensor info:', sensor_info.decode('utf-8').strip())
 
 
-def read_sdi_12_sensors(open_serial_port, sensor_addresses, sensor_commands):
+def read_sdi_12_sensors(open_serial_port, sensor_addresses, sensor_commands, system_hostname):
     # Generate timestamp
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    # Collect hostname
-    system_hostname = socket.gethostname()
 
     # Set up output_data string
     output_data = current_time + ',' + system_hostname
@@ -151,13 +148,13 @@ def main():
     get_sensor_info(sdi_12_adapter, config['sdi_12_address'])
 
     # Generate filename and open CSV file
-    data_filename = utils.generate_filename(config['data_output_path'])
-    data_file = utils.setup_csv(data_filename, config['header'])  # open config_file_name_yyyymmdd.csv for appending
+    data_filename = utils.generate_filename()
+    data_file = utils.setup_csv((config['data_output_path'] + data_filename), config['header'])  # open config_file_name_yyyymmdd.csv for appending
 
     # Read and clean up sensor data
-    output_data = read_sdi_12_sensors(sdi_12_adapter, config['sdi_12_address'], config['sdi_12_command'])
+    output_data = read_sdi_12_sensors(sdi_12_adapter, config['sdi_12_address'], config['sdi_12_command'], config['hostname'])
     formatted_data = utils.format_output(output_data, config['sdi_12_address'], config['connected_devices']) + '\n'
-    
+
     print(f"The following data will be stored in {data_filename}: \n\t{formatted_data}")
 
     # Write and flush to make sure data is written to the disk so force stopping the program will not cause data loss
