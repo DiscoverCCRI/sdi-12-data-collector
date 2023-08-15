@@ -27,10 +27,9 @@ def format_output(data_str, addresses, connected_devices):
 
 
 def generate_filename(file_path):
-    system_hostname = socket.gethostname()
     date = datetime.now().strftime("%Y%m%d")
 
-    filename = f"{file_path}{system_hostname}-sdi-12-{date}.csv"
+    filename = f"sdi-12-{date}.csv"
     return filename
 
 
