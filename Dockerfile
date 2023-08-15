@@ -25,5 +25,5 @@ RUN chmod +x /sdi_12_data_collector.py
 RUN chmod +x /sdi_12_data_collector.sh
 
 # Run the command on container startup
-CMD cron \
-    && ./sdi_12_data_collector.sh
+#CMD cron \
+#    && ./sdi_12_data_collector.sh
