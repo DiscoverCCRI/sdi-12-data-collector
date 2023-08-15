@@ -4,7 +4,7 @@ FROM ubuntu:latest
 RUN apt-get update
 RUN apt-get install cron
 RUN apt-get install -y python3 python3-distutils python3-pip python3-apt
-RUN pip3 install pyserial
+RUN pip3 install pyserial PyYAML
 
 # Copy necessary files to local docker container environment
 ADD crontab /etc/cron.d/simple-cron
