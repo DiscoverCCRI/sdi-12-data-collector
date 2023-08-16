@@ -94,7 +94,7 @@ docker ps
 ```
 - Done!
 
-## Using the SDI-12 Adapter With Cron:
+## Using the SDI-12 Adapter With Python:
 
 - Pull this repository to your device:
   ```
