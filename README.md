@@ -66,6 +66,9 @@ cd sdi-12-data-collector
 ```
 nano config.yaml
 ```
+
+- OPTIONAL: To change the docker containers time zone, edit line XX in the Dockerfile. A list of acceptable time zones can be found at https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+
 - Build docker image in current directory:
    - This will take a while
 ```
