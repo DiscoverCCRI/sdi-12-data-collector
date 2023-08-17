@@ -54,7 +54,7 @@ sudo docker run hello-world
 
 - Clone repository to get Dockerfile and configuration files: 
 ```
-git clone REPONAME 
+git clone https://github.com/DiscoverCCRI/sdi-12-data-collector.git 
 ```
 
 - Change into directory: 
@@ -65,6 +65,11 @@ cd sdi-12-data-collector
    - Refer to comments for necessary changes
 ```
 nano config.yaml
+```
+
+- Modify crontab to match your implementation: 
+```
+nano crontab
 ```
 
 - OPTIONAL: To change the docker containers time zone, edit line 10 in the Dockerfile. A list of acceptable time zones can be found at https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
