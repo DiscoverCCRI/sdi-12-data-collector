@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 # Imports
 from datetime import datetime  # For finding system's real time
 import re  # For regular expression support
