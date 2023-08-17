@@ -10,4 +10,5 @@ connected_devices: # Redundant of sdi_12_address, this just cleans up data outpu
     'z': '100K-THERMISTOR' # Sensor name that corresponds to it's address
   }
 header: "DateTime,Hostname,Sensor1,VWC(m^3),Temp(\u00b0C),EC(dS/m),Sensor2,WaterPotential(kPa),Temp(\u00b0C),Sensor3,Voltage(V),Temp(K)" # Header for the output CSV file
-data_output_path: "./" # Path where data is outputted
+data_output_path: "/Data/" # Path where data is outputted
+hostname: "IOBoard12" # Device that the SDI-12 Adapter is plugged into
