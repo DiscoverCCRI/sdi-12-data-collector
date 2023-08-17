@@ -151,3 +151,16 @@ Analog Wiring Reference With Thermistor:
   ```
   crontab -l
   ```
+
+## Expected Output Format
+
+The output into the log file should look like this:
+
+
+<img width="1150" alt="Screen Shot 2023-08-17 at 3 15 32 PM" src="https://github.com/DiscoverCCRI/sdi-12-data-collector/assets/72172361/a60255b3-d48d-42a5-8200-96965a565892">
+
+The output into the csv file should look like this:
+
+
+<img width="896" alt="Screen Shot 2023-08-17 at 3 16 36 PM" src="https://github.com/DiscoverCCRI/sdi-12-data-collector/assets/72172361/b62048ef-f9ef-413c-bfde-1d62efc6bf63">
+
