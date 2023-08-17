@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 # Imports
 from datetime import datetime  # For finding system's real time
 import re  # For regular expression support
@@ -19,7 +21,7 @@ def get_sdi_12_port_info():
             print(f"[+] Found SDI-12 USB Adapter at {port.device}")
             print(f"[+] Serial #: {port.serial_number}\n")
             return port.device
-            
+
         else:
             print("[-] No match found, checking next port...\n")
 
@@ -33,12 +35,9 @@ def get_sensor_info(open_serial_port, sensor_addresses):
         print('Sensor address:', address, ' Sensor info:', sensor_info.decode('utf-8').strip())
 
 
-def read_sdi_12_sensors(open_serial_port, sensor_addresses, sensor_commands):
+def read_sdi_12_sensors(open_serial_port, sensor_addresses, sensor_commands, system_hostname):
     # Generate timestamp
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    # Collect hostname
-    system_hostname = socket.gethostname()
 
     # Set up output_data string
     output_data = current_time + ',' + system_hostname
@@ -55,22 +54,22 @@ def read_sdi_12_sensors(open_serial_port, sensor_addresses, sensor_commands):
                     complete_command = address.encode() + b'M!'
                 else:
                     complete_command = address.encode() + b'M' + command.encode() + b'!'
-                
+
                 # Start the SDI-12 sensor measurement
-                open_serial_port.write(complete_command) 
+                open_serial_port.write(complete_command)
                 sdi_12_response = open_serial_port.readline()
 
                 # Didn't get a response from the sensor? Check for faulty wiring.
                 if sdi_12_response == b'':
                     print(f"Sensor {address} failed to respond to command {complete_command}")
-                    
+
                     # End the current iteration of sensors and commands on each sensor and wait for the next iteration.
-                    no_data = True 
+                    no_data = True
                     break
 
                 # remove \r and \n since [0-9]$ has trouble with \r
                 sdi_12_response = sdi_12_response[:-2]
-                
+
                 # This should match a number ([0-9]) that appears at the end of the response ($), which is a 1-digit number of "returned values"
                 match_result = re.search(b'[0-9]$', sdi_12_response)
 
@@ -82,7 +81,7 @@ def read_sdi_12_sensors(open_serial_port, sensor_addresses, sensor_commands):
 
                 # Find out how many values are returned
                 total_returned_values = int(match_result.group(0))
-                
+
                 # Read the service request line
                 sdi_12_response = open_serial_port.readline()
 
@@ -102,7 +101,7 @@ def read_sdi_12_sensors(open_serial_port, sensor_addresses, sensor_commands):
                         next_sdi_12_response = next_sdi_12_response[1:-2]
                         # Append results from the Dn! command to data from D0! to Dn-1!
                         sdi_12_line_buffer += next_sdi_12_response
-            
+
             except serial.serialutil.SerialException as err:
                 print(err.__str__())
                 open_serial_port.close()
@@ -113,13 +112,13 @@ def read_sdi_12_sensors(open_serial_port, sensor_addresses, sensor_commands):
                 # search a number string with preceding + or - sign and any number of digits and decimal (+).
                 match_result = re.search(b'[+-][0-9.]+', sdi_12_line_buffer)
 
-                # if values found is less than values indicated by return from M, report no data found. 
+                # if values found is less than values indicated by return from M, report no data found.
                 # This is a simple solution to GPS sensors before they acquire lock. For sensors that have lots of values to return, you need to find a better solution.
                 try:
                     # convert into a number. Decode byte string into string first due to MicroPython.
                     values.append(float(match_result.group(0).decode()))
                     sdi_12_line_buffer = sdi_12_line_buffer[len(match_result.group(0)):]
-                
+
                 except AttributeError:
                     print(f"No data received from sensor at address {address}\n")
                     no_data = True
@@ -142,7 +141,7 @@ def main():
 
     # Connect to the SDI-12 USB Adapter
     sdi_12_device = get_sdi_12_port_info()
-    
+
     # Open serial port and wait for arduino bootloader
     sdi_12_adapter = serial.Serial(port=sdi_12_device, baudrate=9600, timeout=10)
     time.sleep(2.5)
@@ -151,13 +150,13 @@ def main():
     get_sensor_info(sdi_12_adapter, config['sdi_12_address'])
 
     # Generate filename and open CSV file
-    data_filename = utils.generate_filename(config['data_output_path'])
-    data_file = utils.setup_csv(data_filename, config['header'])  # open config_file_name_yyyymmdd.csv for appending
+    data_filename = utils.generate_filename()
+    data_file = utils.setup_csv((config['data_output_path'] + data_filename), config['header'])  # open config_file_name_yyyymmdd.csv for appending
 
     # Read and clean up sensor data
-    output_data = read_sdi_12_sensors(sdi_12_adapter, config['sdi_12_address'], config['sdi_12_command'])
+    output_data = read_sdi_12_sensors(sdi_12_adapter, config['sdi_12_address'], config['sdi_12_command'], config['hostname'])
     formatted_data = utils.format_output(output_data, config['sdi_12_address'], config['connected_devices']) + '\n'
-    
+
     print(f"The following data will be stored in {data_filename}: \n\t{formatted_data}")
 
     # Write and flush to make sure data is written to the disk so force stopping the program will not cause data loss
