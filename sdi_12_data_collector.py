@@ -54,7 +54,7 @@ def read_sdi_12_sensors(open_serial_port, sensor_addresses, sensor_commands, sys
                     complete_command = address.encode() + b'M!'
                 else:
                     complete_command = address.encode() + b'M' + command.encode() + b'!'
-    
+
                 # Start the SDI-12 sensor measurement
                 open_serial_port.write(complete_command)
                 sdi_12_response = open_serial_port.readline()
