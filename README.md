@@ -43,63 +43,62 @@ Analog Wiring Reference With Thermistor:
 ## Using the SDI-12 Adapter With Docker:
 
 - Install docker: 
-```
-sudo apt install docker.io 
-```
+  ```
+  sudo apt install docker.io 
+  ```
 
 - Check if docker is functioning: 
-```
-sudo docker run hello-world
-```
+  ```
+  sudo docker run hello-world
+  ```
 
 - Clone repository to get Dockerfile and configuration files: 
-```
-git clone https://github.com/DiscoverCCRI/sdi-12-data-collector.git 
-```
+  ```
+  git clone https://github.com/DiscoverCCRI/sdi-12-data-collector.git 
+  ```
 
 - Change into directory: 
-```
-cd sdi-12-data-collector
-```
+  ```
+  cd sdi-12-data-collector
+  ```
 - Modify config.yaml to match your implementation: 
    - Refer to comments for necessary changes
-```
-nano config.yaml
-```
+  ```
+  nano config.yaml
+  ```
 
 - Modify crontab to match your implementation: 
-```
-nano crontab
-```
+  ```
+  nano crontab
+  ```
 
 - OPTIONAL: To change the docker containers time zone, edit line 10 in the Dockerfile. A list of acceptable time zones can be found at https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
 - Build docker image in current directory:
-   - This will take a while
-```
-docker build -t sdi12 .
-```
+  ```
+  docker build -t sdi12 .
+  ```
 - Create a directory in a convenient location to store the docker volume. For example: 
-```
-mkdir -p Data/SDI12Data
-```
+  ```
+  mkdir -p Data/SDI12Data
+  ```
 - Create a volume to store data inside the directory created in the previous step: 
-```
-docker volume create --driver local \
-    --opt type=none \
-    --opt device=/SOME/LOCAL/DIRECTORY \
-    --opt o=bind \
-    YOUR_VOLUME_NAME
-```
+  ```
+  docker volume create --driver local \
+      --opt type=none \
+      --opt device=/SOME/LOCAL/DIRECTORY \
+      --opt o=bind \
+      YOUR_VOLUME_NAME
+  ```
 - Execute docker container: 
-```
-docker run --privileged -v YOUR_VOLUME_NAME:/Data -t -i -d --restart unless-stopped sdi12
-```
+  ```
+  docker run --privileged -v YOUR_VOLUME_NAME:/Data -t -i -d --restart unless-stopped sdi12
+  ```
 
 - Verify container is running: 
-```
-docker ps
-```
+  ```
+  docker ps
+  ```
 - Done!
 
 ## Using the SDI-12 Adapter With Python:
@@ -120,35 +119,35 @@ docker ps
   ```
 
 - Change into directory:
-```
-cd sdi-12-data-collector 
-```
+  ```
+  cd sdi-12-data-collector 
+  ```
 
 - Modify config.yaml to match your implementation: 
    - Refer to comments for necessary changes
-```
-nano config.yaml
-```
+  ```
+  nano config.yaml
+  ```
 - Execute script:
-```
-./sdi_12_data_collector.sh
-```
+  ```
+  ./sdi_12_data_collector.sh
+  ```
 - Done!
 
 
 ## Using Cron
 
 - Open cron table file:
-```
-crontab -e
-```
+  ```
+  crontab -e
+  ```
 - Paste the following lines into the cron table and modify the lines to adjust how often the cron job executes: 
-```
-# execute sdi_12_data_collector.sh every 10 minutes
-*/10 * * * * /usr/bin/python3 /SOME/PATH/TO/sdi_12_data_collector.sh
-```
+  ```
+  # execute sdi_12_data_collector.sh every 10 minutes
+  */10 * * * * /usr/bin/python3 /SOME/PATH/TO/sdi_12_data_collector.sh
+  ```
 
 - Save the cron table and verify it was loaded by inspecting running cron jobs: 
-```
-crontab -l
-```
+  ```
+  crontab -l
+  ```
