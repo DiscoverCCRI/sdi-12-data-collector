@@ -106,7 +106,7 @@ docker ps
 
 - Pull this repository to your device:
   ```
-  git clone 
+  git clone https://github.com/DiscoverCCRI/sdi-12-data-collector.git 
   ```
   
 - Install pyserial:
@@ -114,9 +114,14 @@ docker ps
   pip install pyserial
   ```
 
+- Install PyYAML:
+  ```
+  pip install PyYAML
+  ```
+
 - Change into directory:
 ```
-cd DIRECTORY 
+cd sdi-12-data-collector 
 ```
 
 - Modify config.yaml to match your implementation: 
@@ -124,8 +129,11 @@ cd DIRECTORY
 ```
 nano config.yaml
 ```
-
-
+- Execute script:
+```
+./sdi_12_data_collector.sh
+```
+- Done!
 
 
 ## Using Cron
@@ -136,7 +144,7 @@ crontab -e
 ```
 - Paste the following lines into the cron table and modify the lines to adjust how often the cron job executes: 
 ```
-# execute csv2sql.py every 5 minutes
+# execute sdi_12_data_collector.sh every 10 minutes
 */10 * * * * /usr/bin/python3 /SOME/PATH/TO/sdi_12_data_collector.sh
 ```
 
@@ -144,5 +152,3 @@ crontab -e
 ```
 crontab -l
 ```
-
-
