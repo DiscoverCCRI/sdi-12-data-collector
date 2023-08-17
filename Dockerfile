@@ -24,14 +24,17 @@ RUN mkdir -p /Data
 RUN mkdir -p /Data/logs
 
 # Establish correct permissions for files
-RUN chmod 0644 /etc/cron.d/simple-cron
+RUN chmod +x /etc/cron.d/simple-cron
 RUN chmod +x /sdi_12_data_collector.py
 RUN chmod +x /sdi_12_data_collector.sh
 RUN chmod +x /utils.py
-RUN chmod +x /config.yaml
+RUN chmod 774 /config.yaml
+
+# Running crontab
+RUN crontab /etc/cron.d/simple-cron
 
 # Run the command on container startup
 CMD cron \
     && sleep 5 \
-#    && ./sdi_12_data_collector.sh \
+    && ./sdi_12_data_collector.sh \
     && bash
