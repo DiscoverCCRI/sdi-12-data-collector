@@ -1,13 +1,14 @@
-sdi_12_address: "abz"
+sdi_12_address: "abz" # Sensor addresses in order, add or remove as necessary
 sdi_12_command:
-  - '0'
-  - '0'
-  - '8'
-connected_devices:
-  { 'a': 'TEROS-12',
-    'b': 'MPS-6',
-    'z': '100K-THERMISTOR'
+  - '0' # Command to read from first digital sensor
+  - '0' # Command to read from second digital sensor
+  - '8' # Command to read from analog sensor
+  # Add commands for sensors as necessary
+connected_devices: # Redundant of sdi_12_address, this just cleans up data output
+  { 'a': 'TEROS-12', # Sensor name that corresponds to it's address
+    'b': 'MPS-6', # Sensor name that corresponds to it's address
+    'z': '100K-THERMISTOR' # Sensor name that corresponds to it's address
   }
-header: "DateTime,Hostname,Sensor1,VWC(m^3),Temp(\u00b0C),EC(dS/m),Sensor2,WaterPotential(kPa),Temp(\u00b0C),Sensor3,Voltage(V),Temp(K)"
-data_output_path: "./"
-
+header: "DateTime,Hostname,Sensor1,VWC(m^3),Temp(\u00b0C),EC(dS/m),Sensor2,WaterPotential(kPa),Temp(\u00b0C),Sensor3,Voltage(V),Temp(K)" # Header for the output CSV file
+data_output_path: "/Data/" # Path where data is outputted
+hostname: "IOBoard12" # Device that the SDI-12 Adapter is plugged into
