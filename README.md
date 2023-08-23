@@ -17,6 +17,10 @@ There are a few important details to keep in mind when initializing sensors usin
  3. The script sdi_12_initialization.py has interactive steps to walk through the initialization of the sensors.
  4. Repeat the script as necessary for each sensor, as you can only initialize **one at a time!**
 
+Note for IoT Team: 
+ - Address for TEROS-12 = a
+ - Address for MPS-6 = b
+
 
 ## Wiring Sensors
 
