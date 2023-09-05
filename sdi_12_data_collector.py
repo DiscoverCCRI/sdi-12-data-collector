@@ -160,14 +160,12 @@ def main():
     print(f"The following data will be stored in {data_filename}: \n\t{formatted_data}")
 
     # Write and flush to make sure data is written to the disk so force stopping the program will not cause data loss
-    
-    for item in formatted_data:
-        if item is None:
-            print("Null value found, not writing data")
-            break
-        else:  
-            data_file.write(formatted_data)
-            data_file.flush()
+
+    if any(item is None for item in formatted_data):
+        print("Null value found, not writing data")
+    else:
+        data_file.write(formatted_data)
+        data_file.flush()
 
     # Close open serial connection and file
     sdi_12_adapter.close()
