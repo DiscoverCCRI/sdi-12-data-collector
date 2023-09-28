@@ -161,10 +161,14 @@ def main():
 
     # Write and flush to make sure data is written to the disk so force stopping the program will not cause data loss
 
-    if any(item is None for item in formatted_data):
+    header_items = config['header'].split(",") # Get number of items in the header
+
+    data_items = formatted_data.split(",") # Get number of items in the data
+
+    if (len(header_items) != len(data_items)):  # Test if Data has the same number of items as the header
         print("Null value found, not writing data")
     else:
-        data_file.write(formatted_data)
+        data_file.write(formatted_data) # If they are equal, write data
         data_file.flush()
 
     # Close open serial connection and file
